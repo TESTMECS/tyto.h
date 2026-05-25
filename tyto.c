@@ -2,8 +2,6 @@
 //! Implementation for the tyto library.
 #include "tyto.proto.h"
 
-#include <stdint.h>
-
 //! ## Arena ##
 static Arena*
 _arena_new(sz size)

@@ -1,15 +1,6 @@
 //! @file tyto.proto.h
 //! 	Prototype header.
-//! Style guide.
-//! 	TODO
 //! General outline:
-//! Macros - Pre/post conditions and asserts
-//! Constants, Typedefs, Prototypes.
-//! 1. Slice - stack-based string (&str)
-//! 2. String - heap based string (String)
-//! 3. Arena - Based memory mangement
-//! 4. Linear - Linear handles.
-//! 5. Dynamic Array
 #ifndef TYTO_PROTO_H_
 #define TYTO_PROTO_H_
 
