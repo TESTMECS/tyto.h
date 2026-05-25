@@ -1,4 +1,3 @@
-# Generic Justfile	
 default:
 	@just --list
 

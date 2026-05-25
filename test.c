@@ -19,11 +19,27 @@ test_slice(void)
     xassert("Should check empty", slice_is_empty(slice_cstring("")));
 }
 
+void
+test_arena(void)
+{
+    Arena* a = arena_new();
+    char*  x = arena_alloc(a, 10);
+    char*  y = arena_alloc(a, 10);
+    char*  z = arena_alloc(a, 10);
+    arena_free(a);
+}
+
+void
+test_dynamic_array(void)
+{
+}
+
 int
 main(void)
 {
     puts("=== Begin Tests ===");
     test_slice();
+    test_arena();
     puts("=== Tests passed! ===");
     return 0;
 }
