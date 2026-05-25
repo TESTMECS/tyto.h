@@ -36,6 +36,76 @@
 //! Calculates the length of an array.
 #define ARRAY_SIZE(...) (sizeof(__VA_ARGS__) / sizeof(*(__VA_ARGS__)))
 
+//! @DA_TYPE!
+//!		Create dynamic array struct for type.
+//! Example:
+//! ---
+//! DA_TYPE(string, char)
+//!
+//! typedef struct string {
+//!		char* items;
+//!		size_t size;
+//!		size_t cap;
+//! } string;
+#define DA_TYPE(name, type)                                                    \
+    typedef struct name                                                        \
+    {                                                                          \
+        type*  items;                                                          \
+        size_t size;                                                           \
+        size_t capacity;                                                       \
+    } name;
+
+//! @DA_APPEND!
+//! 	Append to dynamic array.
+//! Example:
+//! ---
+//! DA_TYPE(msg_array, char)
+//! DA_APPEND(msg_array, "Hello")
+#define DA_APPEND(xs, x)                                                       \
+    do {                                                                       \
+        if (xs.count >= xs.capacity) {                                         \
+            if (xs.capacity == 0)                                              \
+                xs.capacity = 256;                                             \
+            else                                                               \
+                xs.capacity *= 2;                                              \
+            xs.items = realloc(xs.items, xs.capacity * sizeof(*xs.items));     \
+        }                                                                      \
+        xs.items[xs.count++] = x;                                              \
+    } while (0)
+
+//! @DA_SETREF!
+//! 	Set reference to dynamic array.
+//! Example:
+//! strings str = DA_TYPE(strings, char);
+//! char* msg[] = {"Hello", "World"};
+//! DA_SETREF(str, msg, 4, 2)
+#define DA_SETREF(xs, ptr, size_, count_)                                      \
+    do {                                                                       \
+        xs.items    = ptr;                                                     \
+        xs.count    = count_;                                                  \
+        xs.capacity = size_;                                                   \
+    } while (0)
+
+//! @DA_FREE!
+//! 	Free dynamic array.
+#define DA_FREE(xs)                                                            \
+    do {                                                                       \
+        if (xs.items)                                                          \
+            free(xs.items);                                                    \
+        xs.count    = 0;                                                       \
+        xs.capacity = 0;                                                       \
+    } while (0)
+
+//! @DA_RESET!
+#define DA_RESET(xs)                                                           \
+    do {                                                                       \
+        if (xs.items)                                                          \
+            free(xs.items);                                                    \
+        xs.items    = NULL;                                                    \
+        xs.count    = 0;                                                       \
+        xs.capacity = 0;                                                       \
+    } while (0)
+
 //! @ensure!(arg)
 //! 	Checks if [arg] is null and exits if so.
 #define ensure(argument)                                                       \
