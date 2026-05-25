@@ -487,3 +487,39 @@ string_null()
 {
     return (String){.size = SIZE_MAX, .capacity = SIZE_MAX, .buffer = NULL};
 }
+
+String
+read_file_tostring(char* name)
+{
+    ensure(name);
+
+    FILE* f = fopen(name, "r");
+    panic_if(f == NULL, "Cannot open %s", name);
+
+    fseek(f, 0, SEEK_END);
+    long size = ftell(f);
+    rewind(f);
+
+    char* s       = xmalloc(size + 1, char);
+    long  sz_read = fread(s, 1, size, f);
+
+    panic_if(sz_read < size && feof(f) == 0, "Cannot read %s to end.\n", name);
+
+    s[sz_read] = '\0';
+
+    fclose(f);
+    return string_slice((Slice){.buffer = s, .size = sz_read});
+}
+
+void
+write_file_wstring(char* name, String data)
+{
+    ensure(name);
+
+    FILE* f = fopen(name, "w");
+    panic_if(f == NULL, "Cannot open %s", name);
+
+    sz bytes_written = fwrite(data.buffer, 1, data.size, f);
+    fclose(f);
+    panic_if(bytes_written != data.size, "Cannot write data to file %s.", name);
+}

@@ -24,6 +24,18 @@
 #define TYTO_CAT_(a, b)  TYTO_CAT__(a, b)
 #define TYTO_CAT(a, b)   TYTO_CAT_(a, b)
 
+//! @puts!
+//! printf macros
+#define putsln   printf("%s:%d\n", __func__, __LINE__)
+#define putsi(i) printf("%s:%d: %d\n", __func__, __LINE__, i)
+#define putss(s) printf("%s:%d: %s\n", __func__, __LINE__, s)
+#define putsf(...)                                                             \
+    {                                                                          \
+        fprintf(stderr, "%s:%d: ", __func__, __LINE__);                        \
+        fprintf(stderr, __VA_ARGS__);                                          \
+        fprintf(stderr, "\n");                                                 \
+    }
+
 //! Creates a unique identifier with the line number.
 #define UNIQUE_ID(name) TYTO_CAT(name, __LINE__)
 
@@ -490,5 +502,12 @@ string_pop(String* s);
 //! Removes and returns the [idx]-th char in [s].
 char
 string_remove(String* s, sz idx);
+
+//! ## String file api ##
+String
+read_file_tostring(char* name);
+
+void
+write_file_wstring(char* name, String data);
 
 #endif  // TYTO_PROTO_H_
