@@ -1,16 +1,17 @@
-//! @file tyto.h
-//!
-//!  /$$$$$$$$          /$$
-//! |__  $$__/         | $$
-//!    | $$ /$$   /$$ /$$$$$$    /$$$$$$
-//!    | $$| $$  | $$|_  $$_/   /$$__  $$
-//!    | $$| $$  | $$  | $$    | $$  \ $$
-//!    | $$| $$  | $$  | $$ /$$| $$  | $$
-//!    | $$|  $$$$$$$  |  $$$$/|  $$$$$$/
-//!    |__/ \____  $$   \___/   \______/
-//!         /$$  | $$
-//!        |  $$$$$$/
-//!         \______/
+/**
+
+  /$$$$$$$$          /$$
+ |__  $$__/         | $$
+    | $$ /$$   /$$ /$$$$$$    /$$$$$$
+    | $$| $$  | $$|_  $$_/   /$$__  $$
+    | $$| $$  | $$  | $$    | $$  \ $$
+    | $$| $$  | $$  | $$ /$$| $$  | $$
+    | $$|  $$$$$$$  |  $$$$/|  $$$$$$/
+    |__/ \____  $$   \___/   \______/
+         /$$  | $$
+        |  $$$$$$/
+         \______/
+***************************************/
 #ifndef TYTO_PROTO_H_
 #define TYTO_PROTO_H_
 
@@ -25,8 +26,7 @@
 #define TYTO_CAT_(a, b)  TYTO_CAT__(a, b)
 #define TYTO_CAT(a, b)   TYTO_CAT_(a, b)
 
-//! @puts!
-//! printf macros
+/* @puts! */
 #define putsln   printf("%s:%d\n", __func__, __LINE__)
 #define putsi(i) printf("%s:%d: %d\n", __func__, __LINE__, i)
 #define putss(s) printf("%s:%d: %s\n", __func__, __LINE__, s)
@@ -37,90 +37,26 @@
         fprintf(stderr, "\n");                                                 \
     }
 
-//! Creates a unique identifier with the line number.
+/* Creates a unique identifier with the line number. */
 #define UNIQUE_ID(name) TYTO_CAT(name, __LINE__)
 
-//! @TYTO_STATIC_ASSERT!
-//! C99 static assert, creates a negative sized type if the condition is false.
+/**
+ * @TYTO_STATIC_ASSERT!
+ * C99 static assert, creates a negative sized type if the condition is false.
+ **/
 #define TYTO_STATIC_ASSERT(e)                                                  \
     typedef char TYTO_CAT(compile_time_assertion, __LINE__)[(e) ? 1 : -1]
 
-//! @ARRAY_SIZE!
-//! Calculates the length of an array.
+/**
+ * @ARRAY_SIZE!
+ * Calculates the length of an array.
+ **/
 #define ARRAY_SIZE(...) (sizeof(__VA_ARGS__) / sizeof(*(__VA_ARGS__)))
 
-//! @DA_TYPE!
-//!		Create dynamic array struct for type.
-//! Example:
-//! ---
-//! DA_TYPE(string, char)
-//!
-//! typedef struct string {
-//!		char* items;
-//!		size_t size;
-//!		size_t cap;
-//! } string;
-#define DA_TYPE(name, type)                                                    \
-    typedef struct name                                                        \
-    {                                                                          \
-        type*  items;                                                          \
-        size_t size;                                                           \
-        size_t capacity;                                                       \
-    } name;
-
-//! @DA_APPEND!
-//! 	Append to dynamic array.
-//! Example:
-//! ---
-//! DA_TYPE(msg_array, char)
-//! DA_APPEND(msg_array, "Hello")
-#define DA_APPEND(xs, x)                                                       \
-    do {                                                                       \
-        if (xs.count >= xs.capacity) {                                         \
-            if (xs.capacity == 0)                                              \
-                xs.capacity = 256;                                             \
-            else                                                               \
-                xs.capacity *= 2;                                              \
-            xs.items = realloc(xs.items, xs.capacity * sizeof(*xs.items));     \
-        }                                                                      \
-        xs.items[xs.count++] = x;                                              \
-    } while (0)
-
-//! @DA_SETREF!
-//! 	Set reference to dynamic array.
-//! Example:
-//! strings str = DA_TYPE(strings, char);
-//! char* msg[] = {"Hello", "World"};
-//! DA_SETREF(str, msg, 4, 2)
-#define DA_SETREF(xs, ptr, size_, count_)                                      \
-    do {                                                                       \
-        xs.items    = ptr;                                                     \
-        xs.count    = count_;                                                  \
-        xs.capacity = size_;                                                   \
-    } while (0)
-
-//! @DA_FREE!
-//! 	Free dynamic array.
-#define DA_FREE(xs)                                                            \
-    do {                                                                       \
-        if (xs.items)                                                          \
-            free(xs.items);                                                    \
-        xs.count    = 0;                                                       \
-        xs.capacity = 0;                                                       \
-    } while (0)
-
-//! @DA_RESET!
-#define DA_RESET(xs)                                                           \
-    do {                                                                       \
-        if (xs.items)                                                          \
-            free(xs.items);                                                    \
-        xs.items    = NULL;                                                    \
-        xs.count    = 0;                                                       \
-        xs.capacity = 0;                                                       \
-    } while (0)
-
-//! @ensure!(arg)
-//! 	Checks if [arg] is null and exits if so.
+/**
+ * @ensure!(arg)
+ * 	Checks if [arg] is null and exits if so.
+ **/
 #define ensure(argument)                                                       \
     if (argument == NULL) {                                                    \
         fprintf(                                                               \
@@ -133,8 +69,10 @@
         exit(EXIT_FAILURE);                                                    \
     }
 
-//! @require!(description, condition)
-//! 	require a specific description to be true.
+/**
+ * @require!(description, condition)
+ * 	require a specific description to be true.
+ **/
 #define require(description, condition)                                        \
     if (!(condition)) {                                                        \
         fprintf(                                                               \
@@ -148,8 +86,10 @@
         exit(EXIT_FAILURE);                                                    \
     }
 
-//! @xassert!(description, condition)
-//! 	assert macro with a description.
+/**
+ * @xassert!(description, condition)
+ * 	assert macro with a description.
+ **/
 #define xassert(description, condition)                                        \
     if (!(condition)) {                                                        \
         fprintf(                                                               \
@@ -162,8 +102,10 @@
         exit(EXIT_FAILURE);                                                    \
     }
 
-//! @alive!(pointer)
-//! 	Checks if a pointer is not null.
+/**
+ * @alive!(pointer)
+ * Checks if a pointer is not null.
+ **/
 #define alive(pointer)                                                         \
     if (pointer == NULL) {                                                     \
         fprintf(                                                               \
@@ -174,8 +116,10 @@
         exit(EXIT_FAILURE);                                                    \
     }
 
-//! @panic!(message)
-//! 	Prints error message and exits the program.
+/**
+ * @panic!(message)
+ * Prints error message and exits the program.
+ **/
 #define panic(message)                                                         \
     {                                                                          \
         fprintf(                                                               \
@@ -183,8 +127,10 @@
         exit(EXIT_FAILURE);                                                    \
     }
 
-//! @panicf!(message)
-//! 	Prints error message and exits the program with format args.
+/**
+ * @panicf!(message)
+ * Prints error message and exits the program with format args.
+ **/
 #define panicf(...)                                                            \
     {                                                                          \
         fprintf(stderr, "%s:%d, %s: ", __FILE__, __LINE__, __func__);          \
@@ -193,9 +139,10 @@
         exit(EXIT_FAILURE);                                                    \
     }
 
-//! @panic_if!(condition, ...)
-//! 	If the condition is true exits the program after printing the format
-//! args.
+/**
+ * @panic_if!(condition, ...)
+ * If the condition is true exits the program after printing the format args.
+ **/
 #define panic_if(condition, ...)                                               \
     if (condition) {                                                           \
         fprintf(stderr, __VA_ARGS__);                                          \
@@ -203,12 +150,14 @@
         exit(EXIT_FAILURE);                                                    \
     }
 
-//! @xmalloc!(count, type)
-//! 	malloc [count] bytes and return [type*]
-//!   Wraps [xmalloc_impl] for portability.
+/**
+ * @xmalloc!(count, type)
+ *	malloc [count] bytes and return [type*]
+ *  Wraps [xmalloc_impl] for portability.
+ **/
 #define xmalloc(count, type) ((type*)xmalloc_impl(sizeof(type) * (count)))
 
-//! malloc [size] bytes and panic if cannot.
+/* malloc [size] bytes and panic if cannot. */
 static inline void*
 xmalloc_impl(size_t size)
 {
@@ -221,12 +170,14 @@ xmalloc_impl(size_t size)
     return result;
 }
 
-//! @xcalloc!(count, type)
-//! 	allocate [count] bytes with [size] bytes each, setting them to 0.
-//! Wraps [xcalloc_impl] for portability.
+/**
+ * @xcalloc!(count, type)
+ * 	allocate [count] bytes with [size] bytes each, setting them to 0.
+ * Wraps [xcalloc_impl] for portability.
+ **/
 #define xcalloc(count, type) ((type*)xcalloc_impl((count), sizeof(type)))
 
-//! calloc [count] bytes of [size] and panic if cannot.
+/* calloc [count] bytes of [size] and panic if cannot. */
 static inline void*
 xcalloc_impl(size_t count, size_t size)
 {
@@ -239,13 +190,15 @@ xcalloc_impl(size_t count, size_t size)
     return result;
 }
 
-//! @realloc!(ptr, count, type)
-//! 	reallocate [ptr] to [count] bytes with the new block [size] wide.
-//! Wraps [xrealloc_impl] for portability.
+/**
+ * @realloc!(ptr, count, type)
+ * reallocate [ptr] to [count] bytes with the new block [size] wide.
+ * Wraps [xrealloc_impl] for portability.
+ **/
 #define xrealloc(ptr, count, type)                                             \
     ((type*)xrealloc_impl((ptr), (count), sizeof(type)))
 
-//! reallocate [ptr] checking for [count] > (SIZE_MAX / size) overflow.
+/* reallocate [ptr] checking for [count] > (SIZE_MAX / size) overflow. */
 static inline void*
 xrealloc_impl(void* ptr, size_t count, size_t size)
 {
@@ -262,8 +215,10 @@ xrealloc_impl(void* ptr, size_t count, size_t size)
     return result;
 }
 
-//! ## Typedefs ##
-//! Type definitions for <inttypes.h> similar to rust.
+/**
+ * ## Typedefs ##
+ * Type definitions for <inttypes.h> similar to rust.
+ **/
 typedef int8_t    i8;
 typedef uint8_t   u8;
 typedef uint8_t   byte;
@@ -279,11 +234,14 @@ typedef intptr_t  iptr;
 typedef uintptr_t uptr;
 typedef size_t    sz;
 
-//! ## Arena ##
-//! 	Simple Arena for EZ allocations, Linked list allocator.
+/**
+ * ## Arena ##
+ * Simple Arena for EZ allocations, Linked list allocator.
+ **/
 
 #define ARENA_PAGE_SIZE (size_t)4096
-//! @Arena(struct)
+
+/* @Arena(struct) */
 typedef struct Arena
 {
     u8*           region; /* pointer to allocated memory */
@@ -292,21 +250,23 @@ typedef struct Arena
     struct Arena* next; /* Pointer to the next arena in linked list */
 } Arena;
 
-//! Create a new arena.
+/* Create a new arena. */
 Arena*
 arena_new();
 
-//! Allocate memory in the areana
+/* Allocate memory in the areana */
 void*
 arena_alloc(Arena* a, sz size);
 
-//! free the arena.
+/* free the arena. */
 void
 arena_free(Arena* a);
 
-//! ## Slice ##
-//! Just a pointer + size.
-//! Stack allocated.
+/**
+ * ## Slice ##
+ * Just a pointer + size.
+ * Stack allocated.
+ **/
 
 typedef struct
 {
@@ -314,96 +274,112 @@ typedef struct
     sz          size;
 } Slice;
 
-//! Create a [size] 0 slice.
+/* Create a [size] 0 slice. */
 Slice
 slice_empty();
 
-//! Create a slice from [cstring] and [size]
+/* Create a slice from [cstring] and [size] */
 Slice
 slice_make(const char* buffer, sz size);
 
-//! Create a slice from [start] to [end] of cstring.
+/* Create a slice from [start] to [end] of cstring. */
 Slice
 slice_range(const char* start, const char* end);
 
-//! Create a slice from [cstring]
-//! @panic_if [cstring] is NULL.
+/**
+ * Create a slice from [cstring]
+ * @panic_if [cstring] is NULL.
+ **/
 Slice
 slice_cstring(const char* cstring);
 
-//! Return size of the slice.
+/* Return size of the slice. */
 sz
 slice_size(Slice s);
 
-//! Return pointer to underlying buffer.
+/* Return pointer to underlying buffer. */
 const char*
 slice_raw(Slice s);
 
-//! Return pointer to char of underlying buffer.
+/* Return pointer to char of underlying buffer. */
 const char*
 slice_ref(Slice s, sz idx);
 
-//! Get char at [idx]-th char in [s].
-//! @panic_if idx <= [s.size]
+/**
+ * Get char at [idx]-th char in [s].
+ * @panic_if idx <= [s.size]
+ **/
 char
 slice_at(Slice s, sz idx);
 
-//! Compare slices.
-//! 1  ? [s1] > [s2] :
-//! 0  ? [s1] == [s2] :
-//! -1 ? [s1] < [s2] ;
+/**
+ * Compare slices.
+ * 1  ? [s1] > [s2] :
+ * 0  ? [s1] == [s2] :
+ * -1 ? [s1] < [s2] ;
+ **/
 int
 slice_cmp(Slice s1, Slice s2);
 
-//! Return true if [s1] == [s2]
+/* Return true if [s1] == [s2] */
 bool
 slice_eq(Slice s1, Slice s2);
 
-//! Splits [s] into part before [delim] and part after [delim]
-//! If [delim] not found, [pre] gets whole [s] string and [post]
-//! gets assigned the empty string starting at the first character
-//! after the end of s.
+/**
+ * Splits [s] into part before [delim] and part after [delim]
+ * If [delim] not found, [pre] gets whole [s] string and [post]
+ * gets assigned the empty string starting at the first character
+ * after the end of s.
+ **/
 bool
 slice_split(Slice s, char delim, Slice* pre, Slice* post);
 
-//! Same as [slice_split] however checks at most [n] characters.
+/* Same as [slice_split] however checks at most [n] characters. */
 bool
 slice_split_n(Slice s, char delim, sz n, Slice* pre, Slice* post);
 
-//! Predicate on [s.size] and [s.buffer]
+/* Predicate on [s.size] and [s.buffer] */
 bool
 slice_is_empty(Slice s);
 
-//! Predicate on [s.buffer] for [c] char.
-//! Complexity: TODO
+/**
+ * Predicate on [s.buffer] for [c] char.
+ * Complexity: TODO
+ **/
 bool
 slice_has(Slice s, char c);
 
-//! Find [c] char in [s] setting [idx] to where it was found.
-//! Complexity: TODO
+/**
+ * Find [c] char in [s] setting [idx] to where it was found.
+ * Complexity: TODO
+ **/
 bool
 slice_find(Slice s, char c, sz* idx);
 
-//! Find [c] char in [s] setting [idx], but from the end.
-//! Complexity: TODO
+/**
+ * Find [c] char in [s] setting [idx], but from the end.
+ * Complexity: TODO
+ **/
 bool
 slice_rfind(Slice s, char c, sz* idx);
 
-//! Count [c] chars in [s].
+/* Count [c] chars in [s]. */
 sz
 slice_count(Slice s, char c);
 
-//! Predicate on [s.buffer] starting with [prefix.buffer]
+/* Predicate on [s.buffer] starting with [prefix.buffer] */
 bool
 slice_starts_with(Slice s, Slice prefix);
 
-//! Predicate on [s.buffer] ending with [postfix.buffer]
+/* Predicate on [s.buffer] ending with [postfix.buffer] */
 bool
 slice_ends_with(Slice s, Slice postfix);
 
-//! ## String ##
-//! A Heap allocated String.
-//! Ptr + size + capacity
+/**
+ * ## String ##
+ * A Heap allocated String.
+ * Ptr + size + capacity
+ **/
 
 const sz INITIAL_CAPACITY = 8;
 const sz GROWTH_FACTOR    = 2;
@@ -415,95 +391,95 @@ typedef struct
     sz    capacity;
 } String;
 
-//! Creates an empty String.
+/* Creates an empty String. */
 String
 string_empty();
 
-//! Create String from cstring.
+/* Create String from cstring. */
 String
 string_cstring(const char* buf);
 
-//! Create String from [cap].
+/* Create String from [cap]. */
 String
 string_make(sz cap);
 
-//! Create String from [slice]
+/* Create String from [slice] */
 String
 string_slice(Slice slice);
 
-//! Copy [src] string and return the copy.
+/* Copy [src] string and return the copy. */
 String
 string_copy(String src);
 
-//! Move [s] to the returned string.
+/* Move [s] to the returned string. */
 String
 string_move(String* s);
 
-//! Create a Slice from [s].
+/* Create a Slice from [s]. */
 Slice
 string_toslice(String s);
 
-//! Frees memory allocated for [s].
+/* Frees memory allocated for [s]. */
 void
 string_free(String* s);
 
-//! Get [s.size].
+/* Get [s.size]. */
 sz
 string_size(String s);
 
-//! Get [s.cap].
+/* Get [s.cap]. */
 sz
 string_cap(String s);
 
-//! Predicate on [s.size].
+/* Predicate on [s.size]. */
 bool
 string_is_empty(String s);
 
-//! Predicate on [s.buffer] if null.
+/* Predicate on [s.buffer] if null. */
 bool
 string_is_null(String s);
 
-//! Compare strings.
+/* Compare strings. */
 int
 string_cmp(String s1, String s2);
 
-//! Check if string is eq.
+/* Check if string is eq. */
 bool
 string_eq(String s1, String s2);
 
-//! Returns [idx]-th char in [s].
+/* Returns [idx]-th char in [s]. */
 char
 string_at(String s, size_t idx);
 
-//! Returns pointer to [idx]-th char in [s].
+/* Returns pointer to [idx]-th char in [s]. */
 char*
 string_ref(String s, sz idx);
 
-//! Insert [c] into the [idx]-th position of [s].
+/* Insert [c] into the [idx]-th position of [s]. */
 void
 string_insert(String* s, sz idx, char c);
 
-//! Insert copy of [slice] into [idx]-th position of [s].
+/* Insert copy of [slice] into [idx]-th position of [s]. */
 void
 string_insert_slice(String* s, sz idx, Slice slice);
 
-//! Push [c] to the end of [s].
+/* Push [c] to the end of [s]. */
 void
 string_push(String* s, char c);
 
-//! Push copy of [v] to end of [s].
+/* Push copy of [v] to end of [s]. */
 void
 string_push_slice(String* s, Slice sl);
 
-//! Pops and returns the last character in [s].
+/* Pops and returns the last character in [s]. */
 char
 string_pop(String* s);
 
-//! Removes and returns the [idx]-th char in [s].
+/* Removes and returns the [idx]-th char in [s]. */
 char
 string_remove(String* s, sz idx);
 
-//! ## String file api ##
+/* ## String file api ## */
 String
 read_file_tostring(char* name);
 
@@ -512,7 +488,6 @@ write_file_wstring(char* name, String data);
 
 #ifdef TYTO_IMPL
 
-//! ## Arena ##
 static Arena*
 _arena_new(sz size)
 {
