@@ -1,4 +1,4 @@
-/**
+/***************************************
 
   /$$$$$$$$          /$$
  |__  $$__/         | $$
@@ -153,13 +153,13 @@
 /**
  * @xmalloc!(count, type)
  *	malloc [count] bytes and return [type*]
- *  Wraps [xmalloc_impl] for portability.
+ *  Wraps [zmalloc]
  **/
-#define xmalloc(count, type) ((type*)xmalloc_impl(sizeof(type) * (count)))
+#define xmalloc(count, type) ((type*)zmalloc(sizeof(type) * (count)))
 
 /* malloc [size] bytes and panic if cannot. */
 static inline void*
-xmalloc_impl(size_t size)
+zmalloc(size_t size)
 {
     void* result = malloc(size);
 
@@ -173,13 +173,13 @@ xmalloc_impl(size_t size)
 /**
  * @xcalloc!(count, type)
  * 	allocate [count] bytes with [size] bytes each, setting them to 0.
- * Wraps [xcalloc_impl] for portability.
+ * Wraps [zcalloc]
  **/
-#define xcalloc(count, type) ((type*)xcalloc_impl((count), sizeof(type)))
+#define xcalloc(count, type) ((type*)zcalloc((count), sizeof(type)))
 
-/* calloc [count] bytes of [size] and panic if cannot. */
+/* zcalloc [count] bytes of [size] and panic if cannot. */
 static inline void*
-xcalloc_impl(size_t count, size_t size)
+zcalloc(size_t count, size_t size)
 {
     void* result = calloc(count, size);
 
@@ -193,14 +193,14 @@ xcalloc_impl(size_t count, size_t size)
 /**
  * @realloc!(ptr, count, type)
  * reallocate [ptr] to [count] bytes with the new block [size] wide.
- * Wraps [xrealloc_impl] for portability.
+ * Wraps [xrealloc]
  **/
 #define xrealloc(ptr, count, type)                                             \
-    ((type*)xrealloc_impl((ptr), (count), sizeof(type)))
+    ((type*)zrealloc((ptr), (count), sizeof(type)))
 
 /* reallocate [ptr] checking for [count] > (SIZE_MAX / size) overflow. */
 static inline void*
-xrealloc_impl(void* ptr, size_t count, size_t size)
+zrealloc(void* ptr, size_t count, size_t size)
 {
     if (count > SIZE_MAX / size) {
         panic("Allocation overflow.");
@@ -759,7 +759,7 @@ string_cstring(const char* buf)
     sz     len = strlen(buf);
     String s   = (String){.size     = len,
                           .capacity = len,
-                          .buffer   = xmalloc_impl(s.capacity * sizeof(char))};
+                          .buffer   = zmalloc(s.capacity * sizeof(char))};
     if (s.buffer == NULL)
         return string_null();
     memmove(s.buffer, buf, s.size);
@@ -770,7 +770,7 @@ String
 string_make(sz cap)
 {
     String s = (String){
-        .size = 0, .capacity = cap, .buffer = xmalloc_impl(cap * sizeof(char))};
+        .size = 0, .capacity = cap, .buffer = zmalloc(cap * sizeof(char))};
     if (s.buffer == NULL)
         return string_null();
     return s;
@@ -782,7 +782,7 @@ string_slice(Slice sl)
     String s = (String){
         .size     = sl.size,
         .capacity = sl.size,
-        .buffer   = xmalloc_impl(sl.size * sizeof(char)),
+        .buffer   = zmalloc(sl.size * sizeof(char)),
     };
     if (s.buffer == NULL)
         return string_null();
@@ -798,7 +798,7 @@ string_copy(String s)
     String str = (String){
         .size     = s.size,
         .capacity = s.capacity,
-        .buffer   = xmalloc_impl(s.capacity * sizeof(char)),
+        .buffer   = zmalloc(s.capacity * sizeof(char)),
     };
     if (str.buffer == NULL)
         return string_null();
