@@ -1,9 +1,26 @@
 default:
-	@just --list
+	@just --list && just project 
+
+PROJECT_NAME := "tyto.h"
+DATE_CREATED := "June 12 2026"
+DESCRIPTION := "A single header library for C."
+
+project:
+    @echo {{PROJECT_NAME}}
+    @echo {{DATE_CREATED}}
+    @echo {{DESCRIPTION}}
+
+alias g := git
+git:
+	git init
 
 alias c := commit
 commit MSG:
-	git add . && git commit -m "{{MSG}}" && git push 
+	git add . && git commit -m "{{MSG}}"
+
+alias p := push
+push MSG:
+	git add . && git commit -m "{{MSG}}" && git push
 
 asan_flags := "-fsanitize=address,leak,undefined -ftrapv"
 warn_flags := "-Wall -Wextra -Wshadow -Wconversion"
