@@ -29,11 +29,6 @@ test_arena(void)
     arena_free(a);
 }
 
-void
-test_dynamic_array(void)
-{
-}
-
 int
 main(void)
 {

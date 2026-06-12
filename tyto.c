@@ -2,7 +2,6 @@
 //! Implementation for the tyto library.
 #include "tyto.proto.h"
 
-//! ## Arena ##
 static Arena*
 _arena_new(sz size)
 {
@@ -274,7 +273,7 @@ string_cstring(const char* buf)
     sz     len = strlen(buf);
     String s   = (String){.size     = len,
                           .capacity = len,
-                          .buffer   = xmalloc_impl(s.capacity * sizeof(char))};
+                          .buffer   = zmalloc(s.capacity * sizeof(char))};
     if (s.buffer == NULL)
         return string_null();
     memmove(s.buffer, buf, s.size);
@@ -285,7 +284,7 @@ String
 string_make(sz cap)
 {
     String s = (String){
-        .size = 0, .capacity = cap, .buffer = xmalloc_impl(cap * sizeof(char))};
+        .size = 0, .capacity = cap, .buffer = zmalloc(cap * sizeof(char))};
     if (s.buffer == NULL)
         return string_null();
     return s;
@@ -297,7 +296,7 @@ string_slice(Slice sl)
     String s = (String){
         .size     = sl.size,
         .capacity = sl.size,
-        .buffer   = xmalloc_impl(sl.size * sizeof(char)),
+        .buffer   = zmalloc(sl.size * sizeof(char)),
     };
     if (s.buffer == NULL)
         return string_null();
@@ -313,7 +312,7 @@ string_copy(String s)
     String str = (String){
         .size     = s.size,
         .capacity = s.capacity,
-        .buffer   = xmalloc_impl(s.capacity * sizeof(char)),
+        .buffer   = zmalloc(s.capacity * sizeof(char)),
     };
     if (str.buffer == NULL)
         return string_null();
