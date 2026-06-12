@@ -31,6 +31,8 @@ outfile := "tyto.test"
 
 source_files := "."
 
+# $(find {{source_files}} -name '*.c')
+
 build:
 	gcc \
 		{{include_flags}} \
