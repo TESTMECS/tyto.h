@@ -1,6 +1,5 @@
 #include "flyvec.h"
 
-//
 // 16 bytes for this one. Two pointers.
 // 24 for the struct version. (data, size, capacity).
 // fly vector can be generic ie. "int a = ints[1][i];" no casting required.

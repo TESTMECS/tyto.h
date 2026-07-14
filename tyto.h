@@ -141,10 +141,10 @@
         exit(EXIT_FAILURE);                                                    \
     }
 
-//! @xmalloc!(count, type)
+//! @xmalloc!(type, count)
 //! malloc [count] bytes and return [type*]
 //! Wraps [zmalloc]
-#define xmalloc(count, type) ((type*)zmalloc(sizeof(type) * (count)))
+#define xmalloc(type, count) ((type*)zmalloc(sizeof(type) * (count)))
 
 //! malloc [size] bytes and panic if cannot.
 static inline void*
@@ -177,10 +177,10 @@ zcalloc(size_t count, size_t size)
     return result;
 }
 
-//!	@realloc!(ptr, count, type)
+//!	@realloc!(type, ptr, count)
 //! 	reallocate [ptr] to [count] bytes with the new block [size] wide.
 //! Wraps [xrealloc]
-#define xrealloc(ptr, count, type)                                             \
+#define xrealloc(type, ptr, count)                                             \
     ((type*)zrealloc((ptr), (count), sizeof(type)))
 
 //! reallocate [ptr] checking for [count] > (SIZE_MAX / size) overflow.
@@ -198,6 +198,18 @@ zrealloc(void* ptr, size_t count, size_t size)
     }
 
     return result;
+}
+
+//! Note: type param usued
+#define xfree(type, ptr) zfree(ptr);
+
+static inline void
+zfree(void* ptr)
+{
+    if (ptr == NULL)
+        panic("Trying to free NULL pointer. Double-free.");
+
+    free(ptr);
 }
 
 //! @Allocator Interface
@@ -1379,7 +1391,7 @@ read_file_tostring(char* name)
     long size = ftell(f);
     rewind(f);
 
-    char* s           = xmalloc(size + 1, char);
+    char* s           = xmalloc(char, size + 1);
     long  size_t_read = fread(s, 1, size, f);
 
     panic_if(
