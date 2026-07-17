@@ -10,6 +10,7 @@ project:
     @echo {{DATE_CREATED}}
     @echo {{DESCRIPTION}}
 
+# git
 alias g := git
 git:
 	git init
@@ -22,6 +23,7 @@ alias p := push
 push MSG:
 	git add . && git commit -m "{{MSG}}" && git push
 
+# C 
 asan_flags := "-fsanitize=address,leak,undefined -ftrapv"
 warn_flags := "-Wall -Wextra -Wshadow -Wconversion"
 include_flags := "-Iinclude"
@@ -29,8 +31,10 @@ std_flags := "-std=c99"
 
 outfile := "tyto.test"
 
-source_files := "."
+# space seperated list.
+source_files := "./tests/testnew.c "
 
+# For building projects.
 # $(find {{source_files}} -name '*.c')
 
 build:
@@ -39,7 +43,7 @@ build:
 		{{std_flags}} \
 		{{asan_flags}} \
 		{{warn_flags}} \
-		tyto.h test.c \
+		{{source_files}} \
 		-o {{outfile}}
 
 alias t := test

@@ -1,5 +1,5 @@
 #define TYTO_IMPL
-#include "./tyto.h"
+#include "../tyto.h"
 
 void
 test_slice(void)
