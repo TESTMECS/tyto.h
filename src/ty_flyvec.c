@@ -1,7 +1,6 @@
-#include "../includes/ty_flyvec.h"
-
 #include <stdint.h>
 #include <stdio.h>
+#include <ty_flyvec.h>
 
 int
 main(void)

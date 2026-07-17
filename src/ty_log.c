@@ -1,4 +1,4 @@
-#include "../includes/ty_log.h"
+#include <ty_log.h>
 
 //! @Logging
 static void
