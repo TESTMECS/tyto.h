@@ -29,7 +29,7 @@ warn_flags := "-Wall -Wextra -Wshadow -Wconversion"
 include_flags := "-Iinclude"
 std_flags := "-std=c99"
 
-outfile := "tyto.test"
+outfile := "./builds/tyto.test"
 
 # space seperated list.
 source_files := "./tests/testnew.c "

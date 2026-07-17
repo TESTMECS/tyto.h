@@ -4,6 +4,7 @@
 #define TY_ASSERT_H_
 
 #include <stdio.h>
+#include <stdlib.h>
 
 //! Concatenation macro.
 #define TYTO_CONCAT__(a, b) a##b
