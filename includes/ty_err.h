@@ -22,4 +22,6 @@ typedef intptr_t err_t;
 
 #define ERR_CODE(ptr) ((err_t)(-(intptr_t)(ptr)))
 
+#define TRY_OR(ptr, expA, expB) (IS_ERR(ptr)) ? (expA) : (expB)
+
 #endif /* TY_ERR_H_ */
