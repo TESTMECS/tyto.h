@@ -1,3 +1,19 @@
+//! @module ty_bitpool.h
+//! ---
+//! Bit-pool allocator use a single bit (rather than a free-list like malloc
+//! does) to check if a value is free or not.
+//! Special CPU instructions like [ctz], aka count trailing zeros, can preform
+//! allocations quickly.
+//! O(1) - allocation -> ctz, single cpu instruction.
+//! O(1) - deallocation -> just clear one bit.
+//! O(1) - availability check -> single bit test.
+//! O(1) - range queries -> Bit masking for checking if range is free.
+//!
+//! The structure has 2 levels:
+//! - L0 -> 64 slots per 64-bit word (1 bit per slot).
+//! - L1 -> 1 bit per L0 bucket (tracks which 64-slot buckets are full).
+//! This enables fast skipping of already allocated buckets during allocation.
+//! ---
 #ifndef TY_BITPOOL_H_
 #define TY_BITPOOL_H_
 
