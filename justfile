@@ -32,7 +32,7 @@ std_flags := "-std=c99"
 outfile := "./builds/tyto.test"
 
 # space seperated list.
-source_files := "./tests/test_ty_err.c "
+source_files := "./tests/test_ty_bitpool.c "
 
 # For building projects.
 # $(find {{source_files}} -name '*.c')

@@ -5,6 +5,14 @@
 #include <stdbool.h>
 #include <stdint.h>
 
+#ifndef TY_POOL_SIZE
+#define TY_POOL_SIZE 1024
+#endif  // TY_POOL_SIZE
+
+#ifndef TY_BLOCK_SIZE
+#define TY_BLOCK_SIZE 32
+#endif  // TY_BLOCK_SIZE
+
 #define BIT_POOL_L0_COUNT(N) ((N) / 64)
 #define BIT_POOL_L1_COUNT(N) (((N) + 4095) / 4096)
 
