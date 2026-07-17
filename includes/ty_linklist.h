@@ -32,7 +32,7 @@ struct ty_list_t
     struct ty_list_node_t* tail;
     unsigned int           length;
     void (*list_free_fn)(void* val);
-    void (*match_fn)(void* a, void* b);
+    int (*match_fn)(void* a, void* b);
 };
 
 struct ty_list_iter_t
