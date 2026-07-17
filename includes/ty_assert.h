@@ -6,6 +6,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+#define UNUSED(x) (void)(x)
+
 //! Concatenation macro.
 #define TYTO_CONCAT__(a, b) a##b
 #define TYTO_CONCAT_(a, b)  TYTO_CONCAT__(a, b)
