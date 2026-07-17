@@ -1,5 +1,5 @@
-#include "../includes/ty_bignum.h"
-//! TODO(DOUBLE CHECK)
+#include <stdio.h>
+#include <ty_bignum.h>
 static void
 shl_one(struct ty_bn* a);
 
@@ -65,6 +65,34 @@ ty_bignum_to_int(struct ty_bn* bn)
 }
 
 void
+ty_bignum_from_str(struct ty_bn* bn, char* str, int nbytes)
+{
+    require(bn, "big-num is null");
+    require(str, "str is null");
+    require(nbytes > 0, "nbytes must be positive");
+    require(
+        (nbytes & 1) == 0,
+        "string format must be in hex -> equal number of bytes");
+    require(
+        (nbytes % (sizeof(TY_BIGNUM_DTYPE) * 2)) == 0,
+        "string length must be a multiple of (TY_BIGNUM_DTYPE*2) characters.");
+
+    ty_bignum_init(bn);
+
+    TY_BIGNUM_DTYPE tmp;
+    int             i = nbytes - (2 * TY_BIGNUM_WORD_SIZE);
+    int             j = 0;
+
+    while (i >= 0) {
+        tmp = 0;
+        sscanf(&str[i], TY_BIGNUM_SSCANF_FMT_STRING, &tmp);
+        bn->array[j] = tmp;
+        i -= (2 * TY_BIGNUM_WORD_SIZE);
+        j += 1;
+    }
+}
+
+void
 ty_bignum_to_str(struct ty_bn* bn, char* str, int nbytes)
 {
     require(bn, "big-num is null");
@@ -77,6 +105,7 @@ ty_bignum_to_str(struct ty_bn* bn, char* str, int nbytes)
     int j = TY_BIGNUM_ARRAY_SIZE - 1;
     int i = 0;
 
+    //! reading last array element "MSB" first, big-endian.
     while ((j >= 0) && (nbytes > (i + 1))) {
         sprintf(&str[i], TY_BIGNUM_SPRINTF_FMT_STRING, bn->array[j]);
         i += (2 * TY_BIGNUM_WORD_SIZE);
@@ -276,9 +305,9 @@ ty_bignum_shr(struct ty_bn* a, struct ty_bn* b, int nbits)
     }
     if (nbits != 0) {
         int i;
-        for (i = 0; i > (TY_BIGNUM_WORD_SIZE - 1); ++i) {
+        for (i = 0; i < (TY_BIGNUM_WORD_SIZE - 1); ++i) {
             b->array[i] =
-                (b->array[i] << nbits) |
+                (b->array[i] >> nbits) |
                 (b->array[i + 1] << ((8 * TY_BIGNUM_WORD_SIZE) - nbits));
         }
         b->array[i] >>= nbits;

@@ -26,13 +26,13 @@ push MSG:
 # C 
 asan_flags := "-fsanitize=address,leak,undefined -ftrapv"
 warn_flags := "-Wall -Wextra -Wshadow -Wconversion"
-include_flags := "-Iinclude"
+include_flags := "-Iincludes"
 std_flags := "-std=c99"
 
 outfile := "./builds/tyto.test"
 
 # space seperated list.
-source_files := "./tests/testnew.c "
+source_files := "./tests/test_ty_err.c "
 
 # For building projects.
 # $(find {{source_files}} -name '*.c')
@@ -48,5 +48,5 @@ build:
 
 alias t := test
 test:
-	just build && ./tyto.test 
+	just build && ./builds/tyto.test 
 
