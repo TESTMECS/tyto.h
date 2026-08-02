@@ -1,6 +1,8 @@
 //! @file ty_thread_queue.c
 //! 	Impl for Circular buffer.
 //! TODO(drew): windows compat.
+#define _GNU_SOURCE
+
 #include "pthread.h"
 
 #include <errno.h>
@@ -11,7 +13,6 @@
 #include <stdlib.h>
 #include <string.h>
 //! Linux
-#define _GNU_SOURCE
 #include <sys/mman.h>
 #include <sys/syscall.h>
 #include <sys/types.h>
@@ -20,7 +21,7 @@
 #include <ty_thread_queue.h>
 
 //! for [memfd_create] syscall
-#if (__GLIBC__ <= 2) || (__GLIBC__ == 2 && __GLIBC_MINOR__ < 27)
+#if (__GLIBC__ < 2) || (__GLIBC__ == 2 && __GLIBC_MINOR__ < 27)
 static inline int
 memfd_create(const char* name, unsigned int flags)
 {
@@ -61,7 +62,7 @@ ty_queue_init(ty_queue_t* q, size_t s)
     //! Page_A | Page_B
     //!   |> VM_A <|
     //! Will be used to optimize memory access.
-    if (s % getpagesize() != 0)
+    if (s % (size_t)getpagesize() != 0)
         ty_queue_error(
             "Requested size (%lu) is not a multiple of the page size (%d)",
             s,
@@ -70,7 +71,7 @@ ty_queue_init(ty_queue_t* q, size_t s)
     if ((q->fd = memfd_create("queue_region", 0)) == -1)
         ty_queue_errno("Could not create anonymous file");
     //! Set buffer size
-    if (ftruncate(q->fd, s) != 0)
+    if (ftruncate(q->fd, (off_t)s) != 0)
         ty_queue_errno("Could not set size of anonymous file");
     //! Ask for good address.
     if ((q->buffer = mmap(
@@ -86,6 +87,15 @@ ty_queue_init(ty_queue_t* q, size_t s)
             q->fd,
             0) == MAP_FAILED)
         ty_queue_errno("Could not allocate virtual memory");
+    //! Mirror the region so the buffer wraps seamlessly.
+    if (mmap(
+            q->buffer + s,
+            s,
+            PROT_READ | PROT_WRITE,
+            MAP_SHARED | MAP_FIXED,
+            q->fd,
+            0) == MAP_FAILED)
+        ty_queue_errno("Could not mirror virtual memory");
     //! Initialize synchronization primitives.
     if (pthread_mutex_init(&q->lock, NULL) != 0)
         ty_queue_errno("Could not initialize mutex");

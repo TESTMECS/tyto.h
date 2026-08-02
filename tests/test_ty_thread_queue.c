@@ -1,11 +1,13 @@
+#define _GNU_SOURCE
+
 #include <stdio.h>
 #include <unistd.h>
 //!
 #include <ty_thread_queue.h>
 
-#define BUFFER_SIZE         (getpagesize())
+#define BUFFER_SIZE         ((size_t)getpagesize())
 #define NUMBER_THREADS      (8)
-#define MESSAGES_PER_THREAD (getpagesize() * 2)
+#define MESSAGES_PER_THREAD ((size_t)getpagesize() * 2)
 
 void*
 consumer_loop(void* arg)
@@ -32,7 +34,7 @@ publisher_loop(void* arg)
 }
 
 int
-main(int argc, char* argv[])
+main(void)
 {
     ty_queue_t q;
     ty_queue_init(&q, BUFFER_SIZE);
