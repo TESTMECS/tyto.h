@@ -1,19 +1,18 @@
 #include <ty_string.h>
 
-//! @struct Slice
-static inline struct Slice
+static inline ty_slice_t
 slice_empty()
 {
-    return (struct Slice){.buffer = "", .size = 0};
+    return (ty_slice_t){.buffer = "", .size = 0};
 }
 
-static inline struct Slice
+static inline ty_slice_t
 slice_make(const char* buffer, size_t size)
 {
-    return (struct Slice){.buffer = buffer, .size = size};
+    return (ty_slice_t){.buffer = buffer, .size = size};
 }
 
-struct Slice
+ty_slice_t
 slice_range(const char* start, const char* end)
 {
     const char* s = "";
@@ -28,50 +27,50 @@ slice_range(const char* start, const char* end)
     return slice_make(s, (size_t)(e - s));
 }
 
-struct Slice
+ty_slice_t
 slice_cstring(const char* cstring)
 {
     return slice_make(cstring, strlen(cstring));
 }
 
 static inline size_t
-slice_size(struct Slice s)
+slice_size(ty_slice_t s)
 {
     return s.size;
 }
 
 static inline const char*
-slice_raw(struct Slice s)
+slice_raw(ty_slice_t s)
 {
     return s.buffer;
 }
 
 static inline const char*
-slice_ref(struct Slice s, size_t idx)
+slice_ref(ty_slice_t s, size_t idx)
 {
     return &s.buffer[idx];
 }
 
 static inline char
-slice_at(struct Slice s, size_t idx)
+slice_at(ty_slice_t s, size_t idx)
 {
     return s.buffer[idx];
 }
 
 int
-slice_cmp(struct Slice s1, struct Slice s2)
+slice_cmp(ty_slice_t s1, ty_slice_t s2)
 {
     return strncmp(s1.buffer, s2.buffer, s1.size > s2.size ? s2.size : s1.size);
 }
 
 bool
-slice_eq(struct Slice s1, struct Slice s2)
+slice_eq(ty_slice_t s1, ty_slice_t s2)
 {
     return s1.size == s2.size && strncmp(s1.buffer, s2.buffer, s1.size) == 0;
 }
 
 bool
-slice_split(struct Slice s, char delim, struct Slice* pre, struct Slice* post)
+slice_split(ty_slice_t s, char delim, ty_slice_t* pre, ty_slice_t* post)
 {
     bool   ret = false;
     size_t i   = 0;
@@ -91,11 +90,11 @@ slice_split(struct Slice s, char delim, struct Slice* pre, struct Slice* post)
 
 bool
 slice_split_n(
-    struct Slice  s,
-    char          delim,
-    size_t        n,
-    struct Slice* pre,
-    struct Slice* post)
+    ty_slice_t  s,
+    char        delim,
+    size_t      n,
+    ty_slice_t* pre,
+    ty_slice_t* post)
 {
     bool   ret = false;
     size_t i   = 0;
@@ -114,13 +113,13 @@ slice_split_n(
 }
 
 bool
-slice_is_empty(struct Slice s)
+slice_is_empty(ty_slice_t s)
 {
     return s.size == 0;
 }
 
 bool
-slice_has(struct Slice s, char c)
+slice_has(ty_slice_t s, char c)
 {
     size_t i = 0;
     for (i = 0; i < s.size; i++) {
@@ -131,7 +130,7 @@ slice_has(struct Slice s, char c)
 }
 
 bool
-slice_find(struct Slice s, char c, size_t* idx)
+slice_find(ty_slice_t s, char c, size_t* idx)
 {
     size_t i = 0;
     for (i = 0; i < s.size; i++) {
@@ -145,7 +144,7 @@ slice_find(struct Slice s, char c, size_t* idx)
 }
 
 bool
-slice_rfind(struct Slice s, char c, size_t* idx)
+slice_rfind(ty_slice_t s, char c, size_t* idx)
 {
     size_t i = 0;
     for (i = s.size; i > 0; i--) {
@@ -159,7 +158,7 @@ slice_rfind(struct Slice s, char c, size_t* idx)
 }
 
 size_t
-slice_count(struct Slice s, char c)
+slice_count(ty_slice_t s, char c)
 {
     size_t i     = 0;
     size_t count = 0;
@@ -171,7 +170,7 @@ slice_count(struct Slice s, char c)
 }
 
 bool
-slice_starts_with(struct Slice s, struct Slice prefix)
+slice_starts_with(ty_slice_t s, ty_slice_t prefix)
 {
     size_t i = 0;
     if (prefix.size > s.size)
@@ -185,7 +184,7 @@ slice_starts_with(struct Slice s, struct Slice prefix)
 }
 
 bool
-slice_ends_with(struct Slice s, struct Slice postfix)
+slice_ends_with(ty_slice_t s, ty_slice_t postfix)
 {
     size_t i = 0;
     size_t j = 0;
@@ -198,50 +197,49 @@ slice_ends_with(struct Slice s, struct Slice postfix)
     }
     return true;
 }
-//! ## struct String ##
+//! ## ty_string_t ##
 static void
-string_grow(struct String* s);
+string_grow(ty_string_t* s);
 
 static void
-string_grow_to(struct String* s, size_t cap);
+string_grow_to(ty_string_t* s, size_t cap);
 
-static struct String
+static ty_string_t
 string_null();
 
-struct String
+ty_string_t
 string_empty()
 {
-    return (struct String){.size = 0, .capacity = 0, .buffer = NULL};
+    return (ty_string_t){.size = 0, .capacity = 0, .buffer = NULL};
 }
 
-struct String
+ty_string_t
 string_cstring(const char* buf)
 {
-    size_t        len = strlen(buf);
-    struct String s =
-        (struct String){.size     = len,
-                        .capacity = len,
-                        .buffer   = malloc(s.capacity * sizeof(char))};
+    size_t      len = strlen(buf);
+    ty_string_t s   = (ty_string_t){.size     = len,
+                                    .capacity = len,
+                                    .buffer = malloc(s.capacity * sizeof(char))};
     if (s.buffer == NULL)
         return string_null();
     memmove(s.buffer, buf, s.size);
     return s;
 }
 
-struct String
+ty_string_t
 string_make(size_t cap)
 {
-    struct String s = (struct String){
+    ty_string_t s = (ty_string_t){
         .size = 0, .capacity = cap, .buffer = malloc(cap * sizeof(char))};
     if (s.buffer == NULL)
         return string_null();
     return s;
 }
 
-struct String
-string_slice(struct Slice sl)
+ty_string_t
+string_slice(ty_slice_t sl)
 {
-    struct String s = (struct String){
+    ty_string_t s = (ty_string_t){
         .size     = sl.size,
         .capacity = sl.size,
         .buffer   = malloc(sl.size * sizeof(char)),
@@ -254,10 +252,10 @@ string_slice(struct Slice sl)
     return s;
 }
 
-struct String
-string_copy(struct String s)
+ty_string_t
+string_copy(ty_string_t s)
 {
-    struct String str = (struct String){
+    ty_string_t str = (ty_string_t){
         .size     = s.size,
         .capacity = s.capacity,
         .buffer   = malloc(s.capacity * sizeof(char)),
@@ -268,72 +266,72 @@ string_copy(struct String s)
     return str;
 }
 
-struct String
-string_move(struct String* s)
+ty_string_t
+string_move(ty_string_t* s)
 {
-    struct String str = {0};
-    str               = *s;
-    *s                = string_empty();
+    ty_string_t str = {0};
+    str             = *s;
+    *s              = string_empty();
     return str;
 }
 
-struct Slice
-string_toslice(struct String s)
+ty_slice_t
+string_toslice(ty_string_t s)
 {
     return slice_make(s.buffer, s.size);
 }
 
 void
-string_free(struct String* s)
+string_free(ty_string_t* s)
 {
     free(s->buffer);
     *s = string_empty();
 }
 
 size_t
-string_size(struct String s)
+string_size(ty_string_t s)
 {
     return s.size;
 }
 
 size_t
-string_cap(struct String s)
+string_cap(ty_string_t s)
 {
     return s.capacity;
 }
 
 bool
-string_is_empty(struct String s)
+string_is_empty(ty_string_t s)
 {
     return s.buffer == NULL && s.size == 0;
 }
 
 bool
-string_is_null(struct String s)
+string_is_null(ty_string_t s)
 {
     return s.buffer == NULL && s.size == SIZE_MAX && s.capacity == SIZE_MAX;
 }
 
 int
-string_cmp(struct String s1, struct String s2)
+string_cmp(ty_string_t s1, ty_string_t s2)
 {
     return strncmp(s1.buffer, s2.buffer, s1.size < s2.size ? s1.size : s2.size);
 }
 
 bool
-string_eq(struct String s1, struct String s2)
+string_eq(ty_string_t s1, ty_string_t s2)
 {
     return s1.size == s2.size && strncmp(s1.buffer, s2.buffer, s1.size) == 0;
 }
 
 char
-string_at(struct String s, size_t idx);
+string_at(ty_string_t s, size_t idx);
 
 char*
-string_ref(struct String s, size_t idx);
+string_ref(ty_string_t s, size_t idx);
 
 void
-string_insert(struct String* s, size_t idx, char c)
+string_insert(ty_string_t* s, size_t idx, char c)
 {
     if (idx >= s->size) {
         *s = string_null();
@@ -350,7 +348,7 @@ string_insert(struct String* s, size_t idx, char c)
 }
 
 void
-string_insert_slice(struct String* s, size_t idx, struct Slice v)
+string_insert_slice(ty_string_t* s, size_t idx, ty_slice_t v)
 {
     if (idx >= s->size) {
         *s = string_null();
@@ -367,7 +365,7 @@ string_insert_slice(struct String* s, size_t idx, struct Slice v)
 }
 
 void
-string_push(struct String* s, char c)
+string_push(ty_string_t* s, char c)
 {
     if (s->size == s->capacity) {
         string_grow(s);
@@ -378,7 +376,7 @@ string_push(struct String* s, char c)
 }
 
 void
-string_push_slice(struct String* s, struct Slice sl)
+string_push_slice(ty_string_t* s, ty_slice_t sl)
 {
     if (s->size + sl.size > s->capacity) {
         string_grow_to(s, s->size + sl.size);
@@ -390,13 +388,13 @@ string_push_slice(struct String* s, struct Slice sl)
 }
 
 char
-string_pop(struct String* s)
+string_pop(ty_string_t* s)
 {
     return s->buffer[--s->size];
 }
 
 char
-string_remove(struct String* s, size_t idx)
+string_remove(ty_string_t* s, size_t idx)
 {
     char c = s->buffer[idx];
 
@@ -406,12 +404,12 @@ string_remove(struct String* s, size_t idx)
 }
 
 static void
-string_grow(struct String* s)
+string_grow(ty_string_t* s)
 {
     if (s->capacity == 0) {
-        s->capacity = STRING_INITIAL_CAPACITY;
+        s->capacity = TY_STRING_INITIAL_CAPACITY;
     } else {
-        s->capacity *= STRING_GROWTH_FACTOR;
+        s->capacity *= TY_STRING_GROWTH_FACTOR;
     }
     s->buffer = realloc(s->buffer, s->capacity * sizeof(char));
     if (s->buffer == NULL)
@@ -419,7 +417,7 @@ string_grow(struct String* s)
 }
 
 static void
-string_grow_to(struct String* s, size_t cap)
+string_grow_to(ty_string_t* s, size_t cap)
 {
     s->capacity = cap;
     s->buffer   = realloc(s->buffer, s->capacity * sizeof(char));
@@ -427,14 +425,14 @@ string_grow_to(struct String* s, size_t cap)
         *s = string_null();
 }
 
-static struct String
+static ty_string_t
 string_null()
 {
-    return (struct String){
+    return (ty_string_t){
         .size = SIZE_MAX, .capacity = SIZE_MAX, .buffer = NULL};
 }
 
-struct String
+ty_string_t
 read_file_tostring(char* name)
 {
     ensure(name);
@@ -455,11 +453,11 @@ read_file_tostring(char* name)
     s[size_t_read] = '\0';
 
     fclose(f);
-    return string_slice((struct Slice){.buffer = s, .size = size_t_read});
+    return string_slice((ty_slice_t){.buffer = s, .size = size_t_read});
 }
 
 void
-write_file_wstring(char* name, struct String data)
+write_file_wstring(char* name, ty_string_t data)
 {
     ensure(name);
 
