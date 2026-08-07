@@ -2,7 +2,7 @@
 //! ---
 //! The idea is that we have a pointer to 2d array [ [2]void ] and,
 //! void[0] -> Stores the length of the array.
-//! void[2] -> Stores the actual values of the array.
+//! void[1] -> Stores the actual values of the array.
 //! FlyVec 16 bytes, just two pointers.
 //! 24 bits for the normal: [struct String { data, size, capacity }].
 //! FlyVec can be generic: [int a = myarr[1][i];] no casting required.
