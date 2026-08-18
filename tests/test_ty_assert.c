@@ -1,4 +1,4 @@
-#include "../includes/ty_assert.h"
+#include <ty_assert.h>
 
 int
 main(void)

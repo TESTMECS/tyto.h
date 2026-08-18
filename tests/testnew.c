@@ -1,4 +1,4 @@
-#include "../includes/ty_io.h"
+#include <ty_log.h>
 
 int
 main(void)

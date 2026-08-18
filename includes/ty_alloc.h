@@ -17,13 +17,9 @@
         exit(EXIT_FAILURE);                                                    \
     }
 
-//! @xmalloc!(count, type)
-//! malloc [count] bytes and return [type*]
-//! Wraps [zmalloc]
-#define xmalloc(count, type) ((type*)zmalloc(sizeof(type) * (count)))
 //! malloc [size] bytes and panic if cannot.
 static inline void*
-zmalloc(size_t size)
+xmalloc(size_t size)
 {
     void* result = malloc(size);
     if (result == NULL)
@@ -31,26 +27,15 @@ zmalloc(size_t size)
     return result;
 }
 
-//! @xcalloc!(count, type)
-//!	allocate [count] bytes with [size] bytes each, setting them to 0.
-//! Wraps [zcalloc]
-#define xcalloc(count, type) ((type*)zcalloc((count), sizeof(type)))
-
 //! zcalloc [count] bytes of [size] and panic if cannot.
 static inline void*
-zcalloc(size_t count, size_t size)
+xcalloc(size_t count, size_t size)
 {
     void* result = calloc(count, size);
     if (result == NULL)
         panic("Cannot allocate memory.");
     return result;
 }
-
-//!	@realloc!(ptr, count, type)
-//! 	reallocate [ptr] to [count] bytes with the new block [size] wide.
-//! Wraps [xrealloc]
-#define xrealloc(ptr, count, type)                                             \
-    ((type*)zrealloc((ptr), (count), sizeof(type)))
 
 //! reallocate [ptr] checking for [count] > (SIZE_MAX / size) overflow.
 static inline void*
@@ -106,8 +91,10 @@ Region_init(void* buf, size_t len);
 //! Implementation
 void*
 Region_alloc(Region* region, size_t size);
+
 void*
 Region_remap(Region* region, void* buf, size_t new_size);
+
 void
 Region_free(Region* region, void* buf);
 
@@ -168,7 +155,6 @@ Annex_free(Annex* annex, void* buf);
 //! @Arena
 //! 	An allocator with a linked list of blocks.
 typedef struct Arena Arena;
-
 typedef struct ArenaBlock
 {
     size_t             size;

@@ -1,7 +1,6 @@
-#include "../includes/ty_bignum.h"
-#include "../includes/ty_test.h"
-
 #include <stdio.h>
+#include <ty_bignum.h>
+#include <ty_test.h>
 
 void
 fact(struct ty_bn* bn, struct ty_bn* res)
