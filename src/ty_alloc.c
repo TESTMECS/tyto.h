@@ -1,19 +1,19 @@
 #include <ty_alloc.h>
 
-//! @Region
-static inline Allocator*
-Region_new(Region* region)
+//! @region_t
+static inline allocator_t*
+region_new(region_t* region)
 {
-    return (Allocator*)region;
+    return (allocator_t*)region;
 }
 
-static inline Region
-Region_init(void* buf, size_t len)
+static inline region_t
+region_init(void* buf, size_t len)
 {
-    return (Region){
-        .alloc    = Region_alloc,
-        .remap    = Region_remap,
-        .free     = Region_free,
+    return (region_t){
+        .alloc    = region_alloc,
+        .remap    = region_remap,
+        .free     = region_free,
         .size     = 0,
         .capacity = len,
         .data     = buf,
@@ -21,7 +21,7 @@ Region_init(void* buf, size_t len)
 }
 
 void*
-Region_alloc(Region* region, size_t size)
+region_alloc(region_t* region, size_t size)
 {
     if (size == 0)
         return NULL;
@@ -36,50 +36,50 @@ Region_alloc(Region* region, size_t size)
     return buffer;
 }
 void*
-Region_remap(Region* region, void* buf, size_t new_size)
+region_remap(region_t* region, void* buf, size_t new_size)
 {
     if (!buf)
-        return Region_alloc(region, new_size);
-    size_t old_size = Region_buffer_size(buf);
+        return region_alloc(region, new_size);
+    size_t old_size = region_buffer_size(buf);
     if (old_size >= new_size)
         return buf;
     uint32_t bytes_left = region->capacity - region->size + old_size;
     void*    new_array;
     if (_internal_is_last_allocated(region, buf) && bytes_left >= new_size) {
-        Region_free(region, buf);
-        new_array = Region_alloc(region, new_size);
+        region_free(region, buf);
+        new_array = region_alloc(region, new_size);
     } else {
-        new_array = Region_alloc(region, new_size);
+        new_array = region_alloc(region, new_size);
         if (new_array)
             memcpy(new_array, buf, old_size);
     }
     return new_array;
 }
 void
-Region_free(Region* region, void* buf)
+region_t_free(region_t* region, void* buf)
 {
     if (_internal_is_last_allocated(region, buf)) {
-        size_t buffer_size = Region_buffer_size(buf);
+        size_t buffer_size = region_buffer_size(buf);
         region->size -= buffer_size + sizeof(size_t);
     }
 }
 
-//! @Annex
+//! @annex_t
 
-static inline Annex
-Annex_init(void* buf, size_t len, Allocator* fallback)
+static inline annex_t
+annex_init(void* buf, size_t len, allocator_t* fallback)
 {
-    return (Annex){
-        .alloc     = Annex_alloc,
-        .remap     = Annex_remap,
-        .free      = Annex_free,
-        .allocator = Region_init(buf, len),
+    return (annex_t){
+        .alloc     = annex_alloc,
+        .remap     = annex_remap,
+        .free      = annex_free,
+        .allocator = region_init(buf, len),
         .fallback  = fallback,
     };
 }
 
 static void*
-Annex_alloc(Annex* annex, size_t size)
+annex_alloc(annex_t* annex, size_t size)
 {
     void* buf = annex->allocator.alloc(&annex->allocator, size);
     if (!buf) {
@@ -89,17 +89,17 @@ Annex_alloc(Annex* annex, size_t size)
 }
 
 static void*
-Annex_remap(Annex* annex, void* buf, size_t new_size)
+annex_remap(annex_t* annex, void* buf, size_t new_size)
 {
     if (!buf)
-        Annex_alloc(annex, new_size);
-    if (Region_is_owned(&annex->allocator, buf)) {
+        annex_alloc(annex, new_size);
+    if (region_is_owned(&annex->allocator, buf)) {
         void* new_buffer =
             annex->allocator.remap(&annex->allocator, buf, new_size);
         if (!new_buffer) {
             new_buffer = annex->fallback->alloc(annex->fallback, new_size);
             if (new_buffer) {
-                size_t old_size = Region_buffer_size(buf);
+                size_t old_size = region_buffer_size(buf);
                 memcpy(new_buffer, buf, old_size);
             }
         }
@@ -109,31 +109,31 @@ Annex_remap(Annex* annex, void* buf, size_t new_size)
 }
 
 static void
-Annex_free(Annex* annex, void* buf)
+annex_free(annex_t* annex, void* buf)
 {
-    if (Region_is_owned(&annex->allocator, buf)) {
+    if (region_is_owned(&annex->allocator, buf)) {
         annex->allocator.free(&annex->allocator, buf);
     } else {
         annex->fallback->free(annex->fallback, buf);
     }
 }
 
-//! @Arena
+//! @arena_t
 
-static inline Arena
-Arena_init(size_t block_size, Allocator* allocator)
+static inline arena_t
+arena_init(size_t block_size, allocator_t* allocator)
 {
-    return (Arena){
-        .alloc            = Arena_alloc,
-        .remap            = Arena_remap,
-        .free             = Arena_free,
+    return (arena_t){
+        .alloc            = arena_alloc,
+        .remap            = arena_remap,
+        .free             = arena_free,
         .allocator        = (allocator),
         .first_block_size = (block_size),
     };
 }
 
 static void*
-Arena_alloc(Arena* arena, size_t size)
+arena_t_alloc(arena_t* arena, size_t size)
 {
     if (size == 0)
         return NULL;
@@ -150,9 +150,9 @@ Arena_alloc(Arena* arena, size_t size)
         }
         break;
     }
-    ArenaBlock* block = arena->current_block;
-    size_t      inc   = _alignment_loss(block->size, ALLOCATOR_MAX_ALIGNMENT);
-    void*       buf   = (uint8_t*)block->data + block->size + inc;
+    arena_block_t* block = arena->current_block;
+    size_t         inc = _alignment_loss(block->size, ALLOCATOR_MAX_ALIGNMENT);
+    void*          buf = (uint8_t*)block->data + block->size + inc;
     block->size += requested_size + inc;
     *((size_t*)buf) = size;
     buf             = (size_t*)buf + 1;
@@ -160,23 +160,23 @@ Arena_alloc(Arena* arena, size_t size)
 }
 
 static void*
-Arena_remap(Arena* arena, void* buf, size_t new_size)
+arena_t_remap(arena_t* arena, void* buf, size_t new_size)
 {
     if (!buf || !arena->blocks) {
-        return Arena_alloc(arena, new_size);
+        return arena_t_alloc(arena, new_size);
     }
-    size_t old_size = Region_buffer_size(buf);
+    size_t old_size = region_buffer_size(buf);
     if (old_size >= new_size) {
         return buf;
     }
-    ArenaBlock* block      = arena->current_block;
-    uint32_t    bytes_left = block->capacity - block->size + old_size;
-    void*       new_array;
+    arena_block_t* block      = arena->current_block;
+    uint32_t       bytes_left = block->capacity - block->size + old_size;
+    void*          new_array;
     if (_is_last_allocated_arena(arena, buf) && bytes_left >= new_size) {
-        Arena_free(arena, buf);
-        new_array = Arena_alloc(arena, new_size);
+        arena_free(arena, buf);
+        new_array = arena_t_alloc(arena, new_size);
     } else {
-        new_array = Arena_alloc(arena, new_size);
+        new_array = arena_t_alloc(arena, new_size);
         if (new_array) {
             memcpy(new_array, buf, old_size);
         }
@@ -185,23 +185,23 @@ Arena_remap(Arena* arena, void* buf, size_t new_size)
 }
 
 static void
-Arena_free(Arena* arena, void* buf)
+arena_free(arena_t* arena, void* buf)
 {
     if (_is_last_allocated_arena(arena, buf)) {
-        ArenaBlock* block       = arena->current_block;
-        size_t      buffer_size = Region_buffer_size(buf);
+        arena_block_t* block       = arena->current_block;
+        size_t         buffer_size = region_buffer_size(buf);
         block->size -= buffer_size + sizeof(size_t);
     }
 }
 
 static void
-Arena_deinit(Arena* arena)
+arena_deinit(arena_t* arena)
 {
-    Allocator*  allocator = arena->allocator;
-    ArenaBlock* current   = arena->blocks;
+    allocator_t*   allocator = arena->allocator;
+    arena_block_t* current   = arena->blocks;
     while (current) {
-        ArenaBlock* temp = current;
-        current          = current->next;
+        arena_block_t* temp = current;
+        current             = current->next;
         allocator->free(allocator, temp->data);
         allocator->free(allocator, temp);
     }
@@ -211,9 +211,9 @@ Arena_deinit(Arena* arena)
 }
 
 static void
-Arena_reset(Arena* arena)
+arena_reset(arena_t* arena)
 {
-    ArenaBlock* current = arena->blocks;
+    arena_block_t* current = arena->blocks;
     while (current) {
         current->size = 0;
         current       = current->next;
