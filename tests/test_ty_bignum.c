@@ -34,8 +34,6 @@ test_fact(void)
 int
 main(void)
 {
-    TY_TEST_BEGIN();
     test_fact();
-    TY_TEST_END();
     return 0;
 }

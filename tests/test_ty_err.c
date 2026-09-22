@@ -45,7 +45,6 @@ ty_fopen(const char* path, const char* perms)
 int
 main(void)
 {
-    TY_TEST_BEGIN();
     FILE* file = ty_fopen("", "rb");
     if (IS_ERR(file)) {
         err_t err = ERR_CODE(file);
@@ -53,6 +52,5 @@ main(void)
         fprintf(stderr, "[Error::msg] %s\n", ty_get_err_msg(err));
         return 1;
     }
-    TY_TEST_END();
     return 0;
 }
