@@ -1,6 +1,5 @@
 #include <ty_log.h>
 
-//! @Logging
 static void
 tyto_log(enum TytoLogKind kind, const char* fmt, ...)
 {
